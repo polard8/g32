@@ -5,31 +5,28 @@
 #ifndef ____HAL_H
 #define ____HAL_H  1
 
-
 #define PARTITION_BOOT_FLAG  0x80
 //#define PARTITION_ 
 
-//#define BOOT_RECORD_SIGNATURE          (0xaa55)
+//#define BOOT_RECORD_SIGNATURE    (0xaa55)
 
 /*
  * Microcontrollers support. @todo: Criar arquivo para isso.
  */
 
-
 //#define Microcontroller_PIC 1 
 //#define Microcontroller_ 
 //...
   
-/*
- * vari�veis usadas no hal.
- */  
+//
+// hal stuff
+//
 
 extern unsigned long g_machine_type;
 
 //
 //....
 //
-
 
 //
 //  VECTORS 
@@ -59,7 +56,6 @@ extern unsigned long HANDLERS[256+8];
 
 // Hardware:
 // Estrutura para todos os componentes de hardware presentes.
-
 struct hardware_d
 {
 	// MainBoard info.
@@ -114,15 +110,12 @@ struct hardware_d
 	
 
 	// Discos info.
-
 	struct diskinfo_d *Disk;
 	
-
 	// Volumes dos discos.
     //ponteiro para array de estruturas de volumes.
 	
     struct volumeinfo_d *Volumes; 
-
 
     //ps2 support.
     struct ps2_keyboard_d *ps2_keyboard;
@@ -143,9 +136,8 @@ struct hardware_d
 };
 extern struct hardware_d  *Hardware;  
 
-
-//Firmware:
-//Estrutura para todos os componentes de firmware presentes.
+// Firmware:
+// Estrutura para todos os componentes de firmware presentes.
 struct firmware_d
 {
 	int dummy;
@@ -169,7 +161,7 @@ struct drive_context_d
 };
 extern struct drive_context_d  *DriveContext;  
 
-//Estrutura para informa��es sobre a placa m�e.  
+// Motherboard information
 struct motherboard_d
 {
 	int mobodummy;
@@ -206,7 +198,6 @@ hal_backbuffer_putpixel (
     unsigned long bx, 
     unsigned long cx, 
     unsigned long dx ); 
-
 
 void 
 hal_lfb_putpixel ( 
@@ -260,28 +251,19 @@ IoWritePartitionTable(
 */				
  
  
-//Initialization support.
+// Initialization support.
 
 int init_hal (void);
-
 int init_amd (void);
 // ...
-
 void x86_info (void);
-
 int hal_init_machine (void); 
-
 void hal_set_machine_type (unsigned long type);
-
 // ?
 unsigned long hal_get_machine_type (void);	
-
 int hal_hardware_detect (void);	
-
 int hal_showpciinfo (void);
-
 void hal_vsync (void);
-
 
 //
 // reboot and shutdown
@@ -289,7 +271,6 @@ void hal_vsync (void);
 
 void hal_reboot (void);
 void hal_shutdown (void);
-
 
 //
 // gdt and idt
@@ -304,13 +285,11 @@ hal_setup_new_vectors_table_entry (
     unsigned long address 
 );
 
-
 // Vetores legados.
 // Inicializando a tabela de vetores com os endere�os das rotinas 
 // usadas pelo assembler na inicializa��o de alguns 
 // vetores de interrup��o.
 void hal_init_vectors_table (void);
-
 
 void 
 hal_idt_register_interrupt ( 

@@ -1,20 +1,12 @@
-/*
- * File: kernel/0mem/main.c
- *     This is the main file for the kernel.
- *     It's architecture independent.
- *     The Assembly code passed the control for us, so now
- * we're gonna do some architechture intependent initialization
- * and call the next part of the architechture dependent stuff.
- *
- * History:
- *     2019 - Created by Fred Nora.
- *     2020 -
- */
-
-
+// main.c
+// This is the main file for the kernel.
+// It will be architecture independent.
+// The Assembly code passed the control for us, so now
+// we're gonna do some architechture intependent initialization
+// and call the next part of the architechture dependent stuff.
 // It starts with the kernel data and
 // it has the main routine for the kernel.
-
+// 2019 - Created by Fred Nora.
 
 #include <kernel.h>
 
@@ -23,13 +15,9 @@ struct initialization_d  Initialization;
 
 // up.h
 struct ProcessorBlock_d  UPProcessorBlock;    
-
-
 struct processor_d *processor;
-
 //processors count
 int processors_count=0;
-
 // all processors's structs.
 // ProcessorBlock_d
 unsigned long processorsList[PROCESSORS_MAX_COUNT];
@@ -57,12 +45,10 @@ int terminalOffsetMax=0;  //N�mero m�ximo de caracteres por linha.
 // see: terminal.h
 struct terminal_d  TERMINAL[TERMINAL_COUNT_MAX];
 
-
 // security.h
 int current_usersession=0;
 int current_room=0;
 int current_desktop=0; 
-
 
 // timer interrupt
 // kdrivers/timer.c
@@ -94,13 +80,8 @@ int __breaker_ata2_initialized=0;
 
 //...
 
-
-
-
-
 int system_disk=0;
 int system_volume=0;
-
 
 int gLogonPID=0;
 int gLogoffPID=0;
@@ -142,17 +123,13 @@ unsigned long blSavedCylinders=0;
 // see: gdef.h
 struct boot_block_d  BootBlock;
 
-
 unsigned long g_frontbuffer_va=0;
 unsigned long g_frontbuffer_pa=0;
 
 unsigned long g_backbuffer_va=0;
 unsigned long g_backbuffer_pa=0;
 
-
 int gNextKeyboardMessage=0;
-
-
 
 // pints.h
 unsigned long g_profiler_ints_gde_services=0;
@@ -175,11 +152,9 @@ unsigned long g_profiler_ints_irq13=0;  //
 unsigned long g_profiler_ints_irq14=0;  // kdrivers/kdrivers/ide/atairq.c
 unsigned long g_profiler_ints_irq15=0;  // kdrivers/kdrivers/ide/atairq.c
 
-
-unsigned long kernel_request=0;
-
 // see: request.h
 struct request_d  REQUEST;
+unsigned long kernel_request=0;
 
 // First of all.
 // we need to register some processes.
@@ -394,20 +369,16 @@ extern unsigned long SavedBootBlock;
 // char copyright[] =
 // "Copyright (c) 2005-2020 \n\tFred Nora. All rights reserved.\n\n";
 
-
 // Salvaremos aqui o endereço da idle thread.
 // Isso podera ser importado pelo assembly.
 // unsigned long Ring0IdleThreadAddress;
-
 
 // Algum componente em ring0 pode configurar esse callout
 // o assmebly pode importar e chamar isso.
 // Entao com isso rodariamos uma rotina em ring0 mas fora do kernel.
 // unsigned long Ring0CallOut;
 
-
 // ...
-
 
 /*
 //#test
@@ -435,10 +406,8 @@ struct kernel_d
 struct kernel_d Kernel;
 */
 
-
 // internal
 // #todo: Talvez isso precise retornar int.
-
 void preinit_Globals(int arch_type)
 {
 
@@ -482,19 +451,15 @@ void preinit_Globals(int arch_type)
 
     // Current arch support.
     // We received this arg from Assembly.
-
     current_arch = arch_type;
 
-
-    // runlevel
-    
+    // runlevel    
     current_runlevel = DEFAULT_RUNLEVEL;
     //current_runlevel = 5;
 
     // Kernel symbol table.
     // #todo: maybe we will load a kernel.map file.
     g_kernel_symbols_available = FALSE;
-
 
     //
     // == gramado mode =============================================
@@ -508,7 +473,6 @@ void preinit_Globals(int arch_type)
     // Saving
     // It is used by the kernel info.
     current_mode = (char) BootBlock.gramado_mode;
-
 
 //
 // == No preemptions ==============================
@@ -528,7 +492,8 @@ void preinit_Globals(int arch_type)
     //Set scheduler type. (Round Robin).
     // #todo: call a hal routine for cli.
 
-    asm ("cli");  // #todo: isso é dependente da arquitetura.
+// #todo: isso é dependente da arquitetura.
+    asm ("cli");
     taskswitch_lock();
     scheduler_lock();
     schedulerType = SCHEDULER_RR; 
@@ -539,8 +504,6 @@ void preinit_Globals(int arch_type)
     //## pre initialization globals.
 
     __spinlock_ipc = TRUE;
-
-
 
 //
 // == input mode =============================================
@@ -580,9 +543,8 @@ void preinit_Globals(int arch_type)
 // #todo: Talvez isso precise retornar int.
 void preinit_Serial(void)
 {
-    // Serial
-    // See: bottom/dd/serial/serial.c
-
+// Serial
+// See: bottom/dd/serial/serial.c
     serial_init();
 }
 
@@ -590,28 +552,20 @@ void preinit_Serial(void)
 // #todo: Talvez isso precise retornar int.
 void preinit_OutputSupport(void)
 {
-    // Virtual Console.
-    // See: user/console.c
-    debug_print ("[Kernel] kernel_main: Initializing virtual consoles ...\n");
+// Virtual Console.
+// See: user/console.c
+    debug_print ("preinit_OutputSupport: Initializing virtual consoles\n");
     VirtualConsole_initialize();
 }
 
-
 /*
- ********************************************
  * kernel_main:
- *
  *  Gramado OS kernel C entry point. :)
- * 
- *  This is where C execution begins, after head.asm 
- *  transfers control here.
- * 
+ *  This is where C execution begins, after head.asm transfers control here.
  *  The purpose is to initialize the virtual console support,
  *  the video support, the runtime support and starts the
  *  architecture initialization routine.
- * 
  */
-
 // #progress
 // name:level:sublevel
 
@@ -619,30 +573,15 @@ int kernel_main (int arch_type)
 {
     int Status = (-1);
 
-
-    // Globals
-    // We do not have output yet
-
+// Globals: We do not have output yet.
     preinit_Globals(arch_type);
-
-    // Serial
-    // We do not have output yet
-
+// Serial: We do not have output yet.
     preinit_Serial();
 
-    // =================================================
-    
-    //
-    // #progress
-    // name:level:sublevel
-    //
-
-    PROGRESS("---------------------\n");
-    PROGRESS(" Initializing landos \n");
+    // =================================================   
+    PROGRESS("Initializing landos\n");
     // Now we have serial port output.
-
     // =================================================
-
 
     PROGRESS("Kernel:0:1\n");
     // Initialize the virtual console structures.
@@ -651,13 +590,8 @@ int kernel_main (int arch_type)
 
     preinit_OutputSupport();
 
-
-    PROGRESS("Kernel:0:2\n");
     // Show some basic info.
-
-    debug_print ("Initializing landos kernel ...\n");
-
-
+    PROGRESS ("Initializing landos kernel ...\n");
 
     /*
     // #test
@@ -669,11 +603,9 @@ int kernel_main (int arch_type)
     }
     */
 
-
-
     // ====================================
     // The mode.
-    debug_print ("mode: ");
+    debug_print ("switch current_mode");
 
     switch (current_mode){
         // Standard modes.
@@ -698,10 +630,9 @@ int kernel_main (int arch_type)
             break;
     };
 
-
     // ====================================
     // The architecture.
-    debug_print ("arch: ");
+    debug_print ("switch current_arch");
     
     switch (current_arch){
 
@@ -723,12 +654,9 @@ int kernel_main (int arch_type)
             break; 
     };
 
-    // ====================================
-    PROGRESS("Kernel:0:3\n");
-    // Video support
-
-
-    debug_print ("[Kernel] kernel_main: Initializing video support ...\n");
+// ====================================
+// Video support
+    PROGRESS ("kernel_main: Initializing video support\n");
 
     // First of all.
     // #ps:
@@ -741,21 +669,20 @@ int kernel_main (int arch_type)
     // #bugbug:
     // Text mode is not supported.
 
-    if ( SavedBootMode == 1 ){
+    if (SavedBootMode == 1){
         g_useGUI          = GUI_ON;
         VideoBlock.useGui = GUI_ON;
-        debug_print ("[Kernel] kernel_main: GUI_ON\n");
+        debug_print ("kernel_main: GUI_ON\n");
         // ...
 
     // We can't use printf yet.
-    }else{
+    } else {
         g_useGUI          = GUI_OFF;
         VideoBlock.useGui = GUI_OFF;
-        debug_print ("[Kernel] kernel_main: GUI_OFF\n");
-        debug_print ("[Kernel] kernel_main: Text mode not supported! *hang");
+        debug_print ("kernel_main: GUI_OFF\n");
+        debug_print ("kernel_main: Text mode not supported! *hang");
         goto fail1;
     };
-
 
     if (VideoBlock.useGui == GUI_ON){
         debug_print ("[Kernel] kernel_main: Using GUI\n");
@@ -767,79 +694,48 @@ int kernel_main (int arch_type)
     // the runtime support and clean the background.
     // This way we're gonna be able to use 'printf'.
 
-    //
-    // Video
-    //
-
-    // In hid/video.c
+// Video
+// In hid/video.c
     Video_initialize();
 
-
 // ====================================
-
-//
 // Runtime
-//
+// #bugbug:
+// We need the runtime initialization for the messages.
+// What about to initialize it early?! now!!!!
+// See: core/runtime.c
+// #bugbug
+// Here the background is not initialized yet,
+// so, we have a lot of dirty things.
 
-    PROGRESS("Kernel:0:4\n");
-    // Runtime
-
-
-    //
-    // Runtime
-    //
-
-    // #bugbug:
-    // We need the runtime initialization for the messages.
-    // What about to initialize it early?! now!!!!
-    // See: core/runtime.c
-
-    // #bugbug
-    // Here the background is not initialized yet,
-    // so, we have a lot of dirty things.
-
-    debug_print ("[Kernel] kernel_main: Initializing runtime\n");
+    PROGRESS("kernel_main: Initializing runtime\n");
     Runtime_initialize();
 
-
 // =========================
-    
-    PROGRESS("Kernel:0:5\n");
-    // Clear the screen.
-    // print some basic info.
-
-    //
-    // Background
-    //
-
-    // Initializing background 
-    // for the very first time.
-    // Now we have a black screen.
-    // But the cursor position is wrong yet.
-
-    // See: user/draw/view/bg.c
+// Background
+// Clear the screen and print some basic info.
+// Initializing background 
+// for the very first time.
+// Now we have a black screen.
+// But the cursor position is wrong yet.
+// See: user/draw/view/bg.c
+    PROGRESS("kernel_main: Initialize background\n");
     Background_initialize();
 
+// ================================================
+// Banner
+// The first char!   
+// This is the first char ever for the new background.
+// See: landos/kernel/include/land/0globals/gdef.h
 
-    // ================================================
+// Gramado OS g32.
+// 32bit version of Gramado OS.
+    printf ("Gramado OS g32\n");
 
-    //
-    // The first char!
-    //
-   
-    // This is the first char ever for 
-    // the new background.
-
-    //See:
-    //landos/kernel/include/land/0globals/gdef.h
-
-    printf ("$\n");
-    printf ("GRAMADO LAND\n");
-
-    if ( BootBlock.initialized != TRUE ){
-        panic ("kernel_main: [FAIL] BootBlock not initialized!\n");
+// Boot block
+    if (BootBlock.initialized != TRUE){
+        panic ("kernel_main: [FAIL] BootBlock not initialized\n");
     }
-
     printf ("Boot block address %x\n",BootBlock.bootblock_address);  
     printf ("lfb %x\n",BootBlock.lfb);
     printf ("x   %d\n",BootBlock.x);
@@ -847,21 +743,16 @@ int kernel_main (int arch_type)
     printf ("bpp %d\n",BootBlock.bpp);
     printf (">>>  Gramado mode %d\n", BootBlock.gramado_mode);
     refresh_screen();
-
     // #debug
     // while(1){}
 
-
-
 //=============================
+// Initialize current archtecture.
+// #todo
+// A partir daqui faremos inicializações de partes
+// dependentes da arquitetura.
 
-    PROGRESS("Kernel:0:6\n"); 
-    // Initialize current archtecture.
-
-
-	// #todo
-	// A partir daqui faremos inicializações de partes
-	// dependentes da arquitetura.
+    PROGRESS("switch current_arch\n"); 
 
     switch (current_arch){
 
@@ -894,30 +785,21 @@ int kernel_main (int arch_type)
             break;
     };
 
-
 //=============================
-
-    // Something is wrong
-    PROGRESS("Kernel:0:7\n"); 
-    debug_print ("kernel_main: Something is wrong\n");
-
-
-//
 // Fail
-//
+// Something is wrong
+// Rule 22: "When in doubt, know your way out"
 
-// Rule 22:
-// " When in doubt, know your way out. "
+    PROGRESS ("kernel_main: Something is wrong\n");
 
 // Full console support.
 fail2:
-    printf ("kernel_main: Fail. *HANG\n");
+    printk("kernel_main: HANG\n");
     refresh_screen();
 
 // Only serial debug support.
 fail1:    
-    PROGRESS("Kernel:0:0\n"); 
-    debug_print ("[Kernel] kernel_main-fail:  *hang \n");
+    PROGRESS("kernel_main: HANG\n");
 
 // No output support.
 fail0:
